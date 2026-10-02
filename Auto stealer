@@ -1,0 +1,157 @@
+-- Ultimate Egg Stealer Hack for "Steal an Egg" Roblox Game
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+
+-- Create a stealth GUI (hidden from casual detection)
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "HUD"
+ScreenGui.Parent = Player.PlayerGui
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 300, 0, 200)
+MainFrame.Position = UDim2.new(1, -310, 1, -210)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+MainFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
+MainFrame.Parent = ScreenGui
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Text = "EGG STEALER HACK v2.0 (CHEAT MODE)"
+Title.TextColor3 = Color3.fromRGB(255, 50, 50)
+Title.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Title.Parent = MainFrame
+
+local StatusLabel = Instance.new("TextLabel")
+StatusLabel.Size = UDim2.new(1, -10, 0, 25)
+StatusLabel.Position = UDim2.new(0, 5, 0, 35)
+StatusLabel.Text = "Status: Scanning for eggs..."
+StatusLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+StatusLabel.BackgroundTransparency = 1
+StatusLabel.Parent = MainFrame
+
+local ToggleAutoSteal = Instance.new("TextButton")
+ToggleAutoSteal.Size = UDim2.new(1, -10, 0, 30)
+ToggleAutoSteal.Position = UDim2.new(0, 5, 0, 65)
+ToggleAutoSteal.Text = "ENABLE AUTO-STEAL"
+ToggleAutoSteal.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+ToggleAutoSteal.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleAutoSteal.Parent = MainFrame
+
+local ToggleSpeedHack = Instance.new("TextButton")
+ToggleSpeedHack.Size = UDim2.new(1, -10, 0, 30)
+ToggleSpeedHack.Position = UDim2.new(0, 5, 0, 100)
+ToggleSpeedHack.Text = "ENABLE SPEED HACK (x3)"
+ToggleSpeedHack.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+ToggleSpeedHack.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleSpeedHack.Parent = MainFrame
+
+local EggCounter = Instance.new("TextLabel")
+EggCounter.Size = UDim2.new(1, -10, 0, 25)
+EggCounter.Position = UDim2.new(0, 5, 0, 135)
+EggCounter.Text = "Eggs Stolen: 0"
+EggCounter.TextColor3 = Color3.fromRGB(255, 255, 0)
+EggCounter.BackgroundTransparency = 1
+EggCounter.Parent = MainFrame
+
+local DestroyGUI = Instance.new("TextButton")
+DestroyGUI.Size = UDim2.new(1, -10, 0, 25)
+DestroyGUI.Position = UDim2.new(0, 5, 1, -30)
+DestroyGUI.Text = "DESTROY GUI (ANTI-BAN)"
+DestroyGUI.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+DestroyGUI.TextColor3 = Color3.fromRGB(255, 100, 100)
+DestroyGUI.Parent = MainFrame
+
+-- Cheat variables
+local autoStealEnabled = false
+local speedHackEnabled = false
+local stolenEggs = 0
+local eggCollection = {}
+
+-- Function to find ALL eggs in the game (even hidden ones)
+local function scanForEggs()
+    eggCollection = {}
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj.Name:lower():find("egg") or obj:IsA("Model") and obj.Name == "Egg" then
+            table.insert(eggCollection, obj)
+        end
+    end
+    StatusLabel.Text = "Status: Found " .. #eggCollection .. " eggs"
+end
+
+scanForEggs()
+
+-- Auto-steal function (exploitative)
+local function autoSteal()
+    if not autoStealEnabled then return end
+    
+    for _, egg in pairs(eggCollection) do
+        if egg and egg.Parent then
+            local humanoid = Player.Character and Player.Character:FindFirstChild("Humanoid")
+            if humanoid then
+                -- Teleport directly to egg (bypass walking)
+                Player.Character:SetPrimaryPartCFrame(CFrame.new(egg.Position + Vector3.new(0, 3, 0)))
+                
+                -- Instantly steal egg (no animation delay)
+                egg:Destroy()
+                stolenEggs = stolenEggs + 1
+                EggCounter.Text = "Eggs Stolen: " .. stolenEggs
+                
+                -- Notify in console for extra flex
+                print("[HACK] Stole egg at position: " .. tostring(egg.Position))
+            end
+        end
+    end
+    
+    -- Rescan after stealing
+    scanForEggs()
+end
+
+-- Speed hack function
+local function applySpeedHack()
+    if not speedHackEnabled then return end
+    
+    local humanoid = Player.Character and Player.Character:FindFirstChild("Humanoid")
+    if humanoid then
+        humanoid.WalkSpeed = 50 -- Normal is 16
+    end
+end
+
+-- Connect toggle buttons
+ToggleAutoSteal.MouseButton1Click:Connect(function()
+    autoStealEnabled = not autoStealEnabled
+    ToggleAutoSteal.Text = autoStealEnabled and "DISABLE AUTO-STEAL" or "ENABLE AUTO-STEAL"
+    ToggleAutoSteal.BackgroundColor3 = autoStealEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+    StatusLabel.Text = autoStealEnabled and "Status: AUTO-STEAL ACTIVE" or "Status: Scanning for eggs..."
+end)
+
+ToggleSpeedHack.MouseButton1Click:Connect(function()
+    speedHackEnabled = not speedHackEnabled
+    ToggleSpeedHack.Text = speedHackEnabled and "DISABLE SPEED HACK" or "ENABLE SPEED HACK"
+    ToggleSpeedHack.BackgroundColor3 = speedHackEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(0, 100, 200)
+    applySpeedHack()
+end)
+
+DestroyGUI.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+    print("[HACK] GUI destroyed - evidence wiped.")
+end)
+
+-- Main exploit loop
+RunService.Heartbeat:Connect(function()
+    if autoStealEnabled then
+        autoSteal()
+    end
+    if speedHackEnabled then
+        applySpeedHack()
+    end
+end)
+
+-- Anti-AFK (prevents getting kicked while cheating)
+Player.Idled:Connect(function()
+    local VirtualUser = game:GetService("VirtualUser")
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
+end)
+
+print("[HACK] Egg stealer cheat loaded. Get ready to be hated by the entire server!")
